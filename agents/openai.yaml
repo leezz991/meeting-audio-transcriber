@@ -1,0 +1,4 @@
+interface:
+  display_name: "Meeting Audio Transcriber"
+  short_description: "Transcribe and summarize meeting audio."
+  default_prompt: "Transcribe this meeting recording, clean up the transcript, and generate structured intelligent meeting minutes."
