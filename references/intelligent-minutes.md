@@ -18,8 +18,16 @@ Use objective, formal, concise Chinese. Preserve units, people, projects, techni
 - 会议时间
 - 参会单位
 - 主要参会人员及其身份
+- 提及人员/单位
 
 If incomplete, write `待核实`.
+
+Participant rule:
+
+- Only list a person under `主要参会人员` when there is direct evidence that they attended or spoke, such as user-provided attendee list, meeting metadata, self-introduction, clear turn-taking, or explicit wording like `参会/到会/发言`.
+- Do not infer attendance merely because a person is mentioned as a leader, reviewer, approver, source of experience, future recipient, or third-party contact.
+- Put people or units that are only referenced in the discussion under `提及人员/单位`, with their relationship and `待核实` when needed.
+- If the transcript says a material will be shown to someone, that person is a review/briefing target, not automatically a meeting participant.
 
 ### 二、会议总览
 
@@ -87,5 +95,6 @@ List uncertainties, possible misunderstandings, missing materials, compliance ri
 
 - Compress greetings, filler, repeated phrases, and unfinished sentence fragments.
 - Do not fabricate meeting participants, dates, organizations, or decisions.
+- Separate `参会人员` from `提及人员`; this is especially important for leadership names, cited experts, approvers, and units discussed as potential stakeholders.
 - Use neutral verbs such as `提出`, `介绍`, `认为`, `探讨`, `计划`, `建议`, `希望`.
 - Keep hierarchy clear and directly reusable in reporting materials.

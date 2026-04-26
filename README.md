@@ -10,6 +10,8 @@
 - 对中文转写做繁简转换和常见术语修订。
 - 判断录音是否具备说话人区分条件。
 - 根据转写内容生成结构化“智能会议纪要”。
+- 同步生成 PDF 版会议纪要，便于转发查看。
+- 区分“参会人员”和“会议中提及的人物/单位”，避免把被讨论对象误列为参会人。
 
 ## 目录结构
 
@@ -21,6 +23,7 @@ meeting-audio-transcriber/
 ├── references/
 │   └── intelligent-minutes.md
 └── scripts/
+    ├── minutes_to_pdf.py
     └── transcribe_audio.py
 ```
 
@@ -39,6 +42,9 @@ python -m pip install openai-whisper imageio-ffmpeg opencc-python-reimplemented
 - `openai-whisper`：本地语音识别。
 - `imageio-ffmpeg`：提供本地 ffmpeg，用于音频格式转换。
 - `opencc-python-reimplemented`：将繁体识别结果转换为简体中文。
+- `markdown`：将 Markdown 纪要转换为 HTML 后生成 PDF。多数 Codex 环境已内置，缺失时可单独安装。
+
+PDF 生成依赖本机已安装的 Microsoft Edge、Chrome 或其他 Chromium 系浏览器。
 
 ## 基本用法
 
@@ -72,6 +78,27 @@ python "D:\OneDrive\codex\skills\meeting-audio-transcriber\scripts\transcribe_au
 ```text
 260426_1735_transcript_small_simplified.md
 260426_1735_transcript_small.json
+```
+
+## 生成 PDF 版会议纪要
+
+当已经有 Markdown 纪要文件时，可以运行：
+
+```powershell
+python "D:\OneDrive\codex\skills\meeting-audio-transcriber\scripts\minutes_to_pdf.py" `
+  "D:\OneDrive\obsidian\obcodex\transcripts\260426_1735_intelligent_minutes.md"
+```
+
+默认会在同目录生成：
+
+```text
+260426_1735_intelligent_minutes.pdf
+```
+
+如果浏览器没有被自动找到，可以显式指定：
+
+```powershell
+python "scripts\minutes_to_pdf.py" "minutes.md" --browser "C:\Program Files\Microsoft\Edge\Application\msedge.exe"
 ```
 
 ## 自定义术语修订
@@ -116,6 +143,15 @@ references/intelligent-minutes.md
 
 这个框架适合直接整理成汇报材料，也便于后续推进人员跟踪待办。
 
+### 参会人识别规则
+
+会议纪要中要严格区分：
+
+- `主要参会人员`：只有在录音、元数据、用户提供名单、自我介绍或明确发言证据支持时才列入。
+- `提及人员/单位`：只是在会议中被讨论、被请示、被引用经验、未来要汇报或审批的人和单位。
+
+例如，录音中出现“给副院长看”“邓总的经验”时，除非有明确证据表明其本人参会或发言，否则不能把这些人物直接列为参会人，应写为“提及人员/单位：待核实”。
+
 ## 说话人区分说明
 
 本技能会先判断录音是否具备自动区分说话人的条件：
@@ -129,6 +165,7 @@ references/intelligent-minutes.md
 - 本地 Whisper 转录可能误识别专有名词，需要人工校对。
 - 会议纪要会压缩口语、重复和无效寒暄，但不会编造未出现的信息。
 - 涉及人名、单位、合规要求、平台名称、项目结论时，应优先保守表达。
+- 被提到的人物不等于参会人员；没有明确参会证据时，应标注为“提及人员/单位”或“待核实”。
 - 音频质量、背景噪声、多人同时说话都会影响准确度。
 
 ## GitHub 仓库

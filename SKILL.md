@@ -17,6 +17,7 @@ description: Local meeting audio transcription, transcript cleanup, and intellig
    - Do not invent speaker names. Use `Speaker 1`, `Speaker 2`, etc. only when evidence supports a useful distinction.
 6. Review the transcript for domain terms and apply conservative corrections. Keep uncertain terms as-is or mark them "待核实"; do not over-correct.
 7. If the user asks for a meeting summary or minutes, read `references/intelligent-minutes.md` and generate the structured minutes from the cleaned transcript.
+8. When minutes are generated, also create a PDF version for sharing unless the user asks for Markdown only. Use `scripts/minutes_to_pdf.py` and keep the `.md` and `.pdf` files in the same output folder.
 
 ## Script
 
@@ -36,6 +37,15 @@ Useful options:
 - `--terms terms.json`: apply project-specific find/replace terms.
 - `--no-simplify`: keep original Chinese script instead of converting Traditional to Simplified.
 - `--keep-wav`: keep the generated WAV for debugging or diarization experiments.
+
+Generate a PDF from a Markdown meeting-minutes file:
+
+```powershell
+python "D:\OneDrive\codex\skills\meeting-audio-transcriber\scripts\minutes_to_pdf.py" `
+  "D:\OneDrive\obsidian\obcodex\transcripts\260426_1735_intelligent_minutes.md"
+```
+
+The PDF script uses a local Chromium-family browser such as Microsoft Edge or Chrome in headless mode. If no browser is found, install Edge/Chrome or pass `--browser <path-to-browser.exe>`.
 
 ## Term Correction
 
@@ -59,3 +69,4 @@ Only apply replacements that are plausible in context. For organization names, p
 - Preserve timestamps in the transcript so later summaries can cite sections.
 - Strip filler, repetitions, and false starts only in the cleaned/minutes layer, not in raw JSON.
 - For Chinese meeting notes, write in objective formal language and keep names, units, systems, projects, and compliance terms when identifiable.
+- Do not treat every mentioned person as an attendee. Only list a person as a participant when the transcript, metadata, user-provided context, or direct self-identification supports that they attended or spoke. Put leaders, reviewers, case contacts, or people only mentioned in discussion under "提及人员/单位" or mark them "待核实".
