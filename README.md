@@ -83,8 +83,6 @@ python "D:\OneDrive\codex\skills\meeting-audio-transcriber\scripts\transcribe_au
   "小城市": "小程序",
   "小城区": "小程序",
   "誉名": "域名",
-  "信讯云": "信创云",
-  "交通听": "交通厅"
 }
 ```
 
