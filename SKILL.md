@@ -50,7 +50,7 @@ python "D:\OneDrive\codex\skills\meeting-audio-transcriber\scripts\minutes_to_pd
 
 The PDF script uses a local Chromium-family browser such as Microsoft Edge or Chrome in headless mode. If no browser is found, install Edge/Chrome or pass `--browser <path-to-browser.exe>`.
 
-The default PDF layout is a stable color-block report. It parses the Markdown headings and renders each section into fixed cards with deterministic colors. Short sections may be paired in two-card rows; long sections, tables, timelines, topic notes, decisions, and tasks are automatically rendered full-width to avoid uneven two-column page breaks. Use `--layout plain` only when the user explicitly wants a simple document-style PDF.
+The default PDF layout is a stable color-block report. It parses the Markdown headings and renders each section into fixed cards with deterministic colors. Short sections may be paired in two-card rows; long sections, tables, timelines, topic notes, decisions, and tasks are automatically rendered full-width to avoid uneven two-column page breaks. Browser default headers/footers must be disabled so local HTML paths, dates, and page counters are not printed. Use `--layout plain` only when the user explicitly wants a simple document-style PDF.
 
 Normalize final meeting-minutes filenames:
 
