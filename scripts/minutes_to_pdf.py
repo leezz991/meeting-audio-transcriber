@@ -64,13 +64,21 @@ body {
 .block-orange { background: #fff5ed; border-color: #ffe0c8; }
 .block-gray { background: #f8fafc; border-color: #e5e7eb; }
 .block-yellow { background: #fffbea; border-color: #fde68a; }
-.grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+.card-row {
+  display: flex;
   gap: 12px;
+  align-items: flex-start;
+  margin: 12px 0 14px;
+  break-inside: avoid-page;
+  page-break-inside: avoid;
 }
-.grid .section {
+.card-row .section {
+  flex: 1 1 0;
   margin: 0;
+  min-width: 0;
+}
+.section.full {
+  width: 100%;
 }
 h3 {
   font-size: 12px;
@@ -124,6 +132,11 @@ tr, table, blockquote, pre { break-inside: avoid; }
 }
 @media print {
   .page { border-color: #d6dde7; }
+  .card-row {
+    display: flex;
+    break-inside: avoid-page;
+    page-break-inside: avoid;
+  }
 }
 """
 
@@ -193,8 +206,41 @@ def split_minutes(markdown_text: str) -> tuple[str, str, list[tuple[str, str]]]:
     return title, "\n".join(preface).strip(), [(heading, "\n".join(body).strip()) for heading, body in sections]
 
 
-def should_use_grid(title: str) -> bool:
-    return any(key in title for key in ["核心摘要", "关键决策", "待办事项", "风险", "金句"])
+def is_long_section(markdown_text: str) -> bool:
+    meaningful_lines = [line for line in markdown_text.splitlines() if line.strip()]
+    table_rows = sum(1 for line in meaningful_lines if line.lstrip().startswith("|"))
+    bullet_rows = sum(1 for line in meaningful_lines if re.match(r"^\s*[-*]\s+", line))
+    return len(markdown_text) > 850 or len(meaningful_lines) > 26 or table_rows > 5 or bullet_rows > 12
+
+
+def should_use_half_card(title: str, markdown_text: str) -> bool:
+    if any(key in title for key in ["关键决策", "待办事项", "分主题纪要", "智能章节时间轴"]):
+        return False
+    if is_long_section(markdown_text):
+        return False
+    return any(key in title for key in ["会议信息", "会议总览", "核心摘要", "金句", "风险"])
+
+
+def section_html(idx: int, heading: str, body_md: str, full: bool) -> str:
+    block_class = BLOCK_CLASSES[idx % len(BLOCK_CLASSES)]
+    section_class = "section full" if full else "section"
+    return "\n".join(
+        [
+            f'<section class="{section_class}">',
+            f'<h2 class="section-title">{html.escape(heading)}</h2>',
+            f'<div class="block {block_class}">{markdown_fragment(body_md)}</div>',
+            "</section>",
+        ]
+    )
+
+
+def flush_half_cards(parts: list[str], pending: list[str]) -> None:
+    while len(pending) >= 2:
+        left = pending.pop(0)
+        right = pending.pop(0)
+        parts.append(f'<div class="card-row">{left}{right}</div>')
+    if pending:
+        parts.append(pending.pop(0).replace('class="section"', 'class="section full"', 1))
 
 
 def markdown_to_html(markdown_text: str, layout: str) -> str:
@@ -206,24 +252,17 @@ def markdown_to_html(markdown_text: str, layout: str) -> str:
         if preface:
             parts.append(f'<div class="block block-gray">{markdown_fragment(preface)}</div>')
 
-        grid_open = False
+        pending_half_cards: list[str] = []
         for idx, (heading, body_md) in enumerate(sections):
-            wants_grid = should_use_grid(heading)
-            if wants_grid and not grid_open:
-                parts.append('<div class="grid">')
-                grid_open = True
-            if not wants_grid and grid_open:
-                parts.append("</div>")
-                grid_open = False
+            if should_use_half_card(heading, body_md):
+                pending_half_cards.append(section_html(idx, heading, body_md, full=False))
+                if len(pending_half_cards) == 2:
+                    flush_half_cards(parts, pending_half_cards)
+                continue
+            flush_half_cards(parts, pending_half_cards)
+            parts.append(section_html(idx, heading, body_md, full=True))
 
-            block_class = BLOCK_CLASSES[idx % len(BLOCK_CLASSES)]
-            parts.append('<section class="section">')
-            parts.append(f'<h2 class="section-title">{html.escape(heading)}</h2>')
-            parts.append(f'<div class="block {block_class}">{markdown_fragment(body_md)}</div>')
-            parts.append("</section>")
-
-        if grid_open:
-            parts.append("</div>")
+        flush_half_cards(parts, pending_half_cards)
         parts.append('<div class="footer">内容由 AI 生成，重要信息请人工核实</div>')
         parts.append("</main>")
         body = "\n".join(parts)

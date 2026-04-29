@@ -108,6 +108,12 @@ python "scripts\minutes_to_pdf.py" "minutes.md" --browser "C:\Program Files\Micr
 python "scripts\minutes_to_pdf.py" "minutes.md" --layout plain
 ```
 
+颜色块布局规则：
+
+- 短章节会成对放入同一行，形成左右卡片。
+- 长章节、表格、时间轴、分主题纪要、关键决策和待办事项会自动全宽显示。
+- 这样可以避免左右两栏内容长度不一致时，在 PDF 跨页处出现大面积空白或右栏单独跨页。
+
 ## 自定义术语修订
 
 可以创建一个 JSON 文件，例如 `terms.json`：
