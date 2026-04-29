@@ -289,6 +289,8 @@ def render_pdf(browser: str, html_path: Path, pdf_path: Path) -> None:
         "--disable-gpu",
         "--no-first-run",
         "--disable-extensions",
+        "--no-pdf-header-footer",
+        "--print-to-pdf-no-header",
         f"--print-to-pdf={pdf_path}",
         str(html_path),
     ]
