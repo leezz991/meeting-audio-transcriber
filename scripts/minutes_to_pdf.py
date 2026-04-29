@@ -305,7 +305,12 @@ def main() -> int:
     parser.add_argument("markdown_file", type=Path)
     parser.add_argument("--output", type=Path)
     parser.add_argument("--browser")
-    parser.add_argument("--layout", choices=["color-blocks", "plain"], default="color-blocks")
+    parser.add_argument(
+        "--layout",
+        choices=["color-blocks", "plain"],
+        default="color-blocks",
+        help="Default color-blocks layout uses paired short cards and full-width long/table sections to avoid bad page breaks.",
+    )
     parser.add_argument("--keep-html", action="store_true")
     args = parser.parse_args()
 

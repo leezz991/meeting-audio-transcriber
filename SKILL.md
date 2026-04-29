@@ -7,6 +7,8 @@ description: Local meeting audio transcription, transcript cleanup, and intellig
 
 ## Workflow
 
+Default report layout: use the stabilized `color-blocks` PDF layout. It pairs only short cards and forces long/table-heavy sections to full width, which prevents uneven two-column content from splitting awkwardly across pages.
+
 1. Confirm the audio path is readable and inspect duration, size, codec, channel count, and whether an API key is available. Prefer local processing unless the user explicitly requests or approves external API transcription.
 2. Run `scripts/transcribe_audio.py` for local transcription. It installs no packages by itself; if dependencies are missing, install the smallest practical set such as `openai-whisper`, `imageio-ffmpeg`, and optionally `opencc-python-reimplemented`.
 3. Use `small` as the default Whisper model for Chinese meetings. Use `base` only for quick sampling; use `medium` or larger when the user prioritizes accuracy and runtime is acceptable.
