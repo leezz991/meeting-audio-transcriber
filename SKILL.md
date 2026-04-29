@@ -87,3 +87,14 @@ Only apply replacements that are plausible in context. For organization names, p
 - Do not treat every mentioned person as an attendee. Only list a person as a participant when the transcript, metadata, user-provided context, or direct self-identification supports that they attended or spoke. Put leaders, reviewers, case contacts, or people only mentioned in discussion under "提及人员/单位" or mark them "待核实".
 - For stable PDF layout, keep the nine required `##` headings unchanged, keep paragraphs concise, prefer bullets/tables over long prose, and avoid deeply nested lists.
 - Final deliverables should use the normalized Chinese filename. If the meeting topic is missing or too uncertain, use `日期时间_主题待核实_智能会议纪要`.
+
+## Maintenance
+
+When this skill is optimized, fixed, or extended, update the GitHub repository automatically unless the user explicitly asks for local-only changes.
+
+1. Edit the local skill files under `D:\OneDrive\codex\skills\meeting-audio-transcriber`.
+2. Run `quick_validate.py` for the skill.
+3. Run the relevant script smoke test when a script changes.
+4. Commit with a concise message describing the optimization.
+5. Push `main` to `https://github.com/leezz991/meeting-audio-transcriber`.
+6. Report the commit hash and GitHub URL.
