@@ -23,6 +23,12 @@ Filename contract:
 - Do not include unsafe filename characters such as `/ \ : * ? " < > |`.
 - If topic or time is uncertain, use `主题待核实` or `日期时间待核实` rather than inventing.
 
+Preface contract:
+
+- Use this visible processing line exactly: `> 处理方式：使用 meeting-audio-transcriber 技能整理。（作者LiuQ，github已开源）`
+- Do not include the Whisper model name in the final visible minutes preface.
+- Put model, local/API route, and transcription limitations in internal notes or concise explanation outside the polished minutes only when needed.
+
 ## Required Structure
 
 ### 一、会议信息
