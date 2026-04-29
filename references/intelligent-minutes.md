@@ -8,6 +8,13 @@ Generate a business-oriented, structured meeting record. Do not write a chronolo
 
 Use objective, formal, concise Chinese. Preserve units, people, projects, technical scenarios, cooperation directions, and industry terms when supported by the transcript. Mark unknown information as `待核实`.
 
+Layout contract:
+
+- Keep the nine `##` section headings exactly as listed below. Do not rename, merge, or reorder them unless the user explicitly requests a different format.
+- Keep content concise so the PDF renderer can place sections into stable color-block cards.
+- Prefer bullets and tables. Avoid deeply nested lists and long paragraphs inside cards.
+- Use tables for timelines and tasks. Use short bullet groups for summary cards and risks.
+
 ## Required Structure
 
 ### 一、会议信息
@@ -44,6 +51,8 @@ Include:
 - 可能合作方向
 - 后续推进重点
 
+Use short bullet points; each bullet should usually fit in one line in the PDF card.
+
 ### 四、分主题纪要
 
 Group by topic, not by speaking order. Under each topic include:
@@ -55,6 +64,8 @@ Group by topic, not by speaking order. Under each topic include:
 - 对我方的启示
 - 后续可推进事项
 
+Use `### 主题一：...` subheadings. Keep each topic concise; do not create more than 6 themes unless the meeting is long.
+
 ### 五、智能章节时间轴
 
 Create chronological chapters from transcript timestamps. Each chapter includes:
@@ -62,6 +73,8 @@ Create chronological chapters from transcript timestamps. Each chapter includes:
 - 时间点
 - 小标题
 - 100字以内内容概括
+
+Prefer a Markdown table with columns `时间点`, `小标题`, and `内容概括`.
 
 ### 六、关键决策与共识
 
@@ -98,3 +111,4 @@ List uncertainties, possible misunderstandings, missing materials, compliance ri
 - Separate `参会人员` from `提及人员`; this is especially important for leadership names, cited experts, approvers, and units discussed as potential stakeholders.
 - Use neutral verbs such as `提出`, `介绍`, `认为`, `探讨`, `计划`, `建议`, `希望`.
 - Keep hierarchy clear and directly reusable in reporting materials.
+- Keep the Markdown renderer-friendly: avoid HTML, custom inline styles, emoji-heavy headings, or inconsistent heading levels.

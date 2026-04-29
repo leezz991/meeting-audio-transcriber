@@ -12,6 +12,7 @@
 - 根据转写内容生成结构化“智能会议纪要”。
 - 同步生成 PDF 版会议纪要，便于转发查看。
 - 区分“参会人员”和“会议中提及的人物/单位”，避免把被讨论对象误列为参会人。
+- 使用稳定的颜色块 PDF 布局，减少不同模型输出导致的排版波动。
 
 ## 目录结构
 
@@ -89,7 +90,7 @@ python "D:\OneDrive\codex\skills\meeting-audio-transcriber\scripts\minutes_to_pd
   "D:\OneDrive\obsidian\obcodex\transcripts\260426_1735_intelligent_minutes.md"
 ```
 
-默认会在同目录生成：
+默认会在同目录生成颜色块布局 PDF：
 
 ```text
 260426_1735_intelligent_minutes.pdf
@@ -99,6 +100,12 @@ python "D:\OneDrive\codex\skills\meeting-audio-transcriber\scripts\minutes_to_pd
 
 ```powershell
 python "scripts\minutes_to_pdf.py" "minutes.md" --browser "C:\Program Files\Microsoft\Edge\Application\msedge.exe"
+```
+
+如需退回普通文档样式：
+
+```powershell
+python "scripts\minutes_to_pdf.py" "minutes.md" --layout plain
 ```
 
 ## 自定义术语修订
@@ -142,6 +149,8 @@ references/intelligent-minutes.md
 9. 风险与待核实事项
 
 这个框架适合直接整理成汇报材料，也便于后续推进人员跟踪待办。
+
+为了保证 PDF 排版稳定，纪要 Markdown 应保持固定的九个二级标题，不要随意改名、合并或换序。核心摘要、时间轴、待办事项等内容优先使用短项目符号和表格，避免长段落和多级嵌套列表。
 
 ### 参会人识别规则
 

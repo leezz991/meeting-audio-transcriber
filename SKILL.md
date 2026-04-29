@@ -16,8 +16,8 @@ description: Local meeting audio transcription, transcript cleanup, and intellig
    - If channels are highly correlated or all speech is biased to one channel, state that automatic speaker separation is unreliable.
    - Do not invent speaker names. Use `Speaker 1`, `Speaker 2`, etc. only when evidence supports a useful distinction.
 6. Review the transcript for domain terms and apply conservative corrections. Keep uncertain terms as-is or mark them "待核实"; do not over-correct.
-7. If the user asks for a meeting summary or minutes, read `references/intelligent-minutes.md` and generate the structured minutes from the cleaned transcript.
-8. When minutes are generated, also create a PDF version for sharing unless the user asks for Markdown only. Use `scripts/minutes_to_pdf.py` and keep the `.md` and `.pdf` files in the same output folder.
+7. If the user asks for a meeting summary or minutes, read `references/intelligent-minutes.md` and generate the structured minutes from the cleaned transcript. Keep the required second-level headings exactly as specified so the PDF layout renderer can style sections consistently.
+8. When minutes are generated, also create a PDF version for sharing unless the user asks for Markdown only. Use `scripts/minutes_to_pdf.py` with its default `color-blocks` layout and keep the `.md` and `.pdf` files in the same output folder.
 
 ## Script
 
@@ -47,6 +47,8 @@ python "D:\OneDrive\codex\skills\meeting-audio-transcriber\scripts\minutes_to_pd
 
 The PDF script uses a local Chromium-family browser such as Microsoft Edge or Chrome in headless mode. If no browser is found, install Edge/Chrome or pass `--browser <path-to-browser.exe>`.
 
+The default PDF layout is a stable color-block report. It parses the Markdown headings and renders each section into fixed cards with deterministic colors. Use `--layout plain` only when the user explicitly wants a simple document-style PDF.
+
 ## Term Correction
 
 Use a JSON object for domain terms when known:
@@ -70,3 +72,4 @@ Only apply replacements that are plausible in context. For organization names, p
 - Strip filler, repetitions, and false starts only in the cleaned/minutes layer, not in raw JSON.
 - For Chinese meeting notes, write in objective formal language and keep names, units, systems, projects, and compliance terms when identifiable.
 - Do not treat every mentioned person as an attendee. Only list a person as a participant when the transcript, metadata, user-provided context, or direct self-identification supports that they attended or spoke. Put leaders, reviewers, case contacts, or people only mentioned in discussion under "提及人员/单位" or mark them "待核实".
+- For stable PDF layout, keep the nine required `##` headings unchanged, keep paragraphs concise, prefer bullets/tables over long prose, and avoid deeply nested lists.
