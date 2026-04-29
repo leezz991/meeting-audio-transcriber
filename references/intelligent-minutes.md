@@ -15,6 +15,14 @@ Layout contract:
 - Prefer bullets and tables. Avoid deeply nested lists and long paragraphs inside cards.
 - Use tables for timelines and tasks. Use short bullet groups for summary cards and risks.
 
+Filename contract:
+
+- Final deliverables must be named `YYYYMMDD_HHMM_会议主题_智能会议纪要.md` and `YYYYMMDD_HHMM_会议主题_智能会议纪要.pdf`.
+- Use the recording filename, meeting metadata, or explicit user context for `YYYYMMDD_HHMM`.
+- Use the extracted `会议主题` for the filename topic. Keep it concise, preferably within 20 Chinese characters when possible.
+- Do not include unsafe filename characters such as `/ \ : * ? " < > |`.
+- If topic or time is uncertain, use `主题待核实` or `日期时间待核实` rather than inventing.
+
 ## Required Structure
 
 ### 一、会议信息

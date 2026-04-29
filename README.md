@@ -26,6 +26,7 @@ meeting-audio-transcriber/
 ├── references/
 │   └── intelligent-minutes.md
 └── scripts/
+    ├── name_minutes_outputs.py
     ├── minutes_to_pdf.py
     └── transcribe_audio.py
 ```
@@ -115,6 +116,32 @@ python "scripts\minutes_to_pdf.py" "minutes.md" --layout plain
 - 短章节会成对放入同一行，形成左右卡片。
 - 长章节、表格、时间轴、分主题纪要、关键决策和待办事项会自动全宽显示。
 - 这样可以避免左右两栏内容长度不一致时，在 PDF 跨页处出现大面积空白或右栏单独跨页。
+
+## 纪要文件命名
+
+最终会议纪要文件统一使用中文主题命名：
+
+```text
+YYYYMMDD_HHMM_会议主题_智能会议纪要.md
+YYYYMMDD_HHMM_会议主题_智能会议纪要.pdf
+YYYYMMDD_HHMM_会议主题_智能会议纪要.html
+```
+
+示例：
+
+```text
+20260429_1516_小程序上线部署及节后汇报准备_智能会议纪要.pdf
+```
+
+可以用脚本统一重命名 Markdown、PDF 和 HTML：
+
+```powershell
+python "D:\OneDrive\codex\skills\meeting-audio-transcriber\scripts\name_minutes_outputs.py" `
+  "D:\OneDrive\obsidian\obcodex\transcripts\260429_1516\260429_1516_intelligent_minutes.md" `
+  --audio "F:\REC_FILE\FOLDER01\260429_1516.mp3"
+```
+
+脚本会优先读取纪要中的“会议主题”和“会议时间”；如果时间无法解析，会从录音文件名如 `260429_1516.mp3` 推断为 `20260429_1516`。文件名会自动移除 Windows 不允许的字符。
 
 ## 自定义术语修订
 
