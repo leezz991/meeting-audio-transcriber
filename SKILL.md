@@ -21,6 +21,7 @@ Default report layout: use the stabilized `color-blocks` PDF layout. It pairs on
 7. If the user asks for a meeting summary or minutes, read `references/intelligent-minutes.md` and generate the structured minutes from the cleaned transcript. Keep the required second-level headings exactly as specified so the PDF layout renderer can style sections consistently.
 8. When minutes are generated, also create a PDF version for sharing unless the user asks for Markdown only. Use `scripts/minutes_to_pdf.py` with its default `color-blocks` layout and keep the `.md` and `.pdf` files in the same output folder.
 9. Name final minutes artifacts in Chinese using `YYYYMMDD_HHMM_会议主题_智能会议纪要.md/.pdf/.html`. Infer datetime from the audio filename or meeting metadata and infer topic from `一、会议信息`. Use `scripts/name_minutes_outputs.py` to normalize filenames after Markdown/PDF generation.
+10. Render once with `--keep-html` during QA. Confirm the HTML contains semantic `<ul>`, `<strong>`, `<blockquote>`, and `<table>` elements when those constructs exist in the source; never accept a PDF that shows raw `-`, `**`, `>`, or table separators as body text.
 
 ## Script
 
@@ -50,7 +51,7 @@ python "D:\OneDrive\codex\skills\meeting-audio-transcriber\scripts\minutes_to_pd
 
 The PDF script uses a local Chromium-family browser such as Microsoft Edge or Chrome in headless mode. If no browser is found, install Edge/Chrome or pass `--browser <path-to-browser.exe>`.
 
-The default PDF layout is a stable color-block report. It parses the Markdown headings and renders each section into fixed cards with deterministic colors. Short sections may be paired in two-card rows; long sections, tables, timelines, topic notes, decisions, and tasks are automatically rendered full-width to avoid uneven two-column page breaks. Browser default headers/footers must be disabled so local HTML paths, dates, and page counters are not printed. Use `--layout plain` only when the user explicitly wants a simple document-style PDF.
+The default PDF layout is a stable color-block report. It parses the Markdown headings and renders each section into fixed cards with deterministic colors. Short sections may be paired in two-card rows; long sections, tables, timelines, topic notes, decisions, and tasks are automatically rendered full-width to avoid uneven two-column page breaks. The renderer includes a dependency-free Markdown fallback; missing optional Python packages must never turn Markdown into a raw preformatted text dump. Browser default headers/footers must be disabled so local HTML paths, dates, and page counters are not printed. Use `--layout plain` only when the user explicitly wants a simple document-style PDF.
 
 Normalize final meeting-minutes filenames:
 
@@ -87,6 +88,8 @@ Only apply replacements that are plausible in context. For organization names, p
 - For Chinese meeting notes, write in objective formal language and keep names, units, systems, projects, and compliance terms when identifiable.
 - Do not treat every mentioned person as an attendee. Only list a person as a participant when the transcript, metadata, user-provided context, or direct self-identification supports that they attended or spoke. Put leaders, reviewers, case contacts, or people only mentioned in discussion under "提及人员/单位" or mark them "待核实".
 - For stable PDF layout, keep the nine required `##` headings unchanged, keep paragraphs concise, prefer bullets/tables over long prose, and avoid deeply nested lists.
+- Do not insert an empty standalone blockquote line (`>`). Keep each visible note on its own complete `> text` line so both the primary and fallback renderers behave consistently.
+- When PDF styling matters, generate with `--keep-html` and inspect the HTML or rendered PDF. Treat visible Markdown control characters as a failed export, not a cosmetic warning.
 - Final deliverables should use the normalized Chinese filename. If the meeting topic is missing or too uncertain, use `日期时间_主题待核实_智能会议纪要`.
 
 ## Maintenance
@@ -99,3 +102,4 @@ When this skill is optimized, fixed, or extended, update the GitHub repository a
 4. Commit with a concise message describing the optimization.
 5. Push `main` to `https://github.com/leezz991/meeting-audio-transcriber`.
 6. Report the commit hash and GitHub URL.
+

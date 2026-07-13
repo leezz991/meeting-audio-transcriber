@@ -171,10 +171,120 @@ def markdown_fragment(markdown_text: str) -> str:
     try:
         import markdown
     except ImportError:
-        escaped = html.escape(markdown_text)
-        return "<pre>" + escaped + "</pre>"
+        return fallback_markdown_fragment(markdown_text)
     else:
         return markdown.markdown(markdown_text, extensions=["tables", "fenced_code", "nl2br"])
+
+
+def inline_markdown(text: str) -> str:
+    """Render the small inline subset used by meeting minutes."""
+    rendered = html.escape(text, quote=False)
+    rendered = re.sub(r"`([^`]+)`", r"<code>\1</code>", rendered)
+    rendered = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", rendered)
+    rendered = re.sub(r"(?<!\*)\*([^*]+?)\*(?!\*)", r"<em>\1</em>", rendered)
+    return rendered
+
+
+def fallback_markdown_fragment(markdown_text: str) -> str:
+    """Dependency-free renderer for the Markdown subset emitted by this skill.
+
+    PDF export must not silently degrade to a preformatted text dump when the
+    optional ``markdown`` package is unavailable. This parser intentionally
+    covers headings, paragraphs, lists, blockquotes, fenced code, and tables.
+    """
+    lines = markdown_text.splitlines()
+    parts: list[str] = []
+    idx = 0
+
+    def is_special(line: str) -> bool:
+        stripped = line.strip()
+        return (
+            not stripped
+            or stripped.startswith(("### ", ">", "```", "|"))
+            or bool(re.match(r"^\s*[-*+]\s+", line))
+            or bool(re.match(r"^\s*\d+[.)]\s+", line))
+        )
+
+    while idx < len(lines):
+        line = lines[idx]
+        stripped = line.strip()
+        if not stripped:
+            idx += 1
+            continue
+
+        if stripped.startswith("```"):
+            idx += 1
+            code_lines: list[str] = []
+            while idx < len(lines) and not lines[idx].strip().startswith("```"):
+                code_lines.append(lines[idx])
+                idx += 1
+            idx += idx < len(lines)
+            parts.append(f"<pre><code>{html.escape(chr(10).join(code_lines))}</code></pre>")
+            continue
+
+        heading = re.match(r"^(#{3,6})\s+(.+)$", stripped)
+        if heading:
+            level = len(heading.group(1))
+            parts.append(f"<h{level}>{inline_markdown(heading.group(2))}</h{level}>")
+            idx += 1
+            continue
+
+        if stripped.startswith(">"):
+            quote_lines: list[str] = []
+            while idx < len(lines) and lines[idx].lstrip().startswith(">"):
+                content = lines[idx].lstrip()[1:].strip()
+                if content:
+                    quote_lines.append(content)
+                idx += 1
+            if quote_lines:
+                parts.append("<blockquote>" + "<br>".join(inline_markdown(x) for x in quote_lines) + "</blockquote>")
+            continue
+
+        if stripped.startswith("|"):
+            table_lines: list[str] = []
+            while idx < len(lines) and lines[idx].strip().startswith("|"):
+                table_lines.append(lines[idx].strip())
+                idx += 1
+            rows = [[cell.strip() for cell in row.strip("|").split("|")] for row in table_lines]
+            separator = re.compile(r"^:?-{3,}:?$")
+            if len(rows) >= 2 and all(separator.match(cell.replace(" ", "")) for cell in rows[1]):
+                head, body_rows = rows[0], rows[2:]
+                table = ["<table><thead><tr>"]
+                table.extend(f"<th>{inline_markdown(cell)}</th>" for cell in head)
+                table.append("</tr></thead><tbody>")
+                for row in body_rows:
+                    table.append("<tr>")
+                    table.extend(f"<td>{inline_markdown(cell)}</td>" for cell in row)
+                    table.append("</tr>")
+                table.append("</tbody></table>")
+                parts.append("".join(table))
+            else:
+                parts.append(f"<p>{inline_markdown(' '.join(table_lines))}</p>")
+            continue
+
+        bullet = re.match(r"^\s*[-*+]\s+(.+)$", line)
+        ordered = re.match(r"^\s*\d+[.)]\s+(.+)$", line)
+        if bullet or ordered:
+            tag = "ul" if bullet else "ol"
+            items: list[str] = []
+            pattern = re.compile(r"^\s*[-*+]\s+(.+)$") if bullet else re.compile(r"^\s*\d+[.)]\s+(.+)$")
+            while idx < len(lines):
+                item = pattern.match(lines[idx])
+                if not item:
+                    break
+                items.append(item.group(1).strip())
+                idx += 1
+            parts.append(f"<{tag}>" + "".join(f"<li>{inline_markdown(item)}</li>" for item in items) + f"</{tag}>")
+            continue
+
+        paragraph = [stripped]
+        idx += 1
+        while idx < len(lines) and not is_special(lines[idx]):
+            paragraph.append(lines[idx].strip())
+            idx += 1
+        parts.append(f"<p>{'<br>'.join(inline_markdown(x) for x in paragraph)}</p>")
+
+    return "\n".join(parts)
 
 
 def split_minutes(markdown_text: str) -> tuple[str, str, list[tuple[str, str]]]:
@@ -294,10 +404,10 @@ def render_pdf(browser: str, html_path: Path, pdf_path: Path) -> None:
         f"--print-to-pdf={pdf_path}",
         str(html_path),
     ]
-    proc = subprocess.run(cmd, text=True, capture_output=True)
+    proc = subprocess.run(cmd, text=True, encoding="utf-8", errors="replace", capture_output=True)
     if proc.returncode != 0:
         cmd[1] = "--headless"
-        proc = subprocess.run(cmd, text=True, capture_output=True)
+        proc = subprocess.run(cmd, text=True, encoding="utf-8", errors="replace", capture_output=True)
     if proc.returncode != 0 or not pdf_path.exists():
         raise SystemExit((proc.stderr or proc.stdout or "PDF rendering failed").strip())
 
@@ -338,3 +448,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
